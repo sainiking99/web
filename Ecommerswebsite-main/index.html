@@ -1,0 +1,903 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
+    <!-- Isotope -->
+    <script src="https://unpkg.com/isotope-layout@3/dist/isotope.pkgd.js"></script>
+    <script src="https://unpkg.com/isotope-layout@3/dist/isotope.pkgd.min.js"></script>
+    <!-- SweetAlert -->
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+    <!-- Icon -->
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <style>
+        @font-face {
+            font-family: 'Cooper';
+            src: url('fonts/Cooper.woff2') format('woff2'),
+                 url('fonts/Cooper.woff') format('woff');
+            font-weight: normal;
+            font-style: normal;
+        }
+
+        /* General Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* Navbar wrapper */
+        .navbar-wrapper {
+            width: 100%;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 999;
+        }
+
+        /* Navbar */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 10rem;
+            transition: background 0.3s ease, padding 0.3s ease;
+            width: 100%;
+        }
+        .nav-logo{
+            display: flex;
+            align-items: center;
+            gap: 8rem;
+        }
+
+        .navbar.sticky {
+            background: white;
+            padding: 0.5rem 10rem;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Navigation links */
+        .collapse {
+            display: flex;
+            gap: 2rem;
+            color: black;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .collapse a {
+            text-decoration: none;
+            color: black;
+        }
+
+        /* Responsive menu toggle */
+        .hamburger-menu {
+            display: none;
+            cursor: pointer;
+        }
+
+        /* Custom logo styling */
+        img.custom-logo {
+            height: 80px;
+            width: 80px;
+            filter: drop-shadow(0 0 1px black);
+        }
+
+        /* Icon container */
+        .icon {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .icon i {
+            font-size: 20px;
+        }
+
+        /* User profile container */
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .user-profile span {
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        #Home {
+            width: 100%;
+            height: 100vh;
+            background: url("png/slide-02.jpg") no-repeat center center;
+            background-size: cover;
+        }
+
+        .left {
+            position: absolute;
+            top: 50%;
+            left: -5%;
+            transform: translate(40%, -50%);
+        }
+
+        .slide {
+            display: inline-block; /* Ensure that animation works smoothly */
+            animation: slideIn 2s ease-out; /* Adjust duration and easing as needed */
+            color: black; /* Start with a lighter color */
+            font-family: 'Cooper', serif; /* Apply the Cooper font */
+            font-size: 60px;
+            transition: color 2s ease-out; /* Smooth color transition */
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(50%); /* Start from right outside */
+                opacity: 0; /* Start with hidden text */
+                color: #ccc; /* Start with a lighter color */
+            }
+            to {
+                transform: translateX(0); /* End at the final position */
+                opacity: 1; /* End with visible text */
+                color: black; /* End with a darker color */
+            }
+        }
+
+        /* Base styles for all devices */
+        #persons {
+            display: flex;
+            flex-wrap: wrap; /* Allows items to wrap to the next line */
+            gap: 20px; /* Space between items */
+            justify-content: center; /* Center items within the container */
+            padding: 20px;
+        }
+
+        .item {
+            position: relative; /* Enables absolute positioning for text */
+            width: 100%; /* Full width on smaller screens */
+            max-width: 35rem; /* Limit the maximum width of each item */
+            margin: 0 auto; /* Center item horizontally within its container */
+            overflow: hidden; /* Ensures no overflow of the image */
+            cursor: pointer; /* Show pointer cursor on hover */
+            box-shadow: 0 0 0 1px black;
+            box-sizing: border-box;
+        }
+
+        .item img {
+            width: 100%; /* Image takes full width of the container */
+            height: 100%; /* Set a fixed height */
+            object-fit: cover; /* Ensures the image covers the container */
+            transition: transform 0.5s ease; /* Smooth transitions */
+            filter: brightness(1); /* Default filter */
+            transform: scale(1); /* Default scale */
+        }
+
+        /* Overlay added on click */
+        .item.clicked img {
+            filter: none; /* Remove filter */
+            transform: scale(1); /* Reset scale */
+            position: relative; /* Ensure positioning context */
+        }
+
+        .item.clicked::after {
+            content: ''; /* Required for pseudo-element */
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 255, 0.5); /* Blue transparent overlay */
+            z-index: 1; /* Ensure overlay is above image */
+        }
+
+        /* Ensure text is visible above the overlay */
+        .item.clicked h1, 
+        .item.clicked h4 {
+            color: white; /* Change text color to white */
+            z-index: 99;
+        
+        }
+
+        .item h1,
+        .item h4 {
+            position: absolute; /* Position text over the image */
+            color: black; /* Default text color */
+            width: 100%; /* Full width to center text */
+            text-align: center; /* Center the text horizontally */
+            margin: 0; /* Remove default margins */
+            left: 25%; /* Center horizontally */
+            transform: translateX(-50%); /* Adjust for horizontal centering */
+        }
+
+        .item h1 {
+            top: 20%; /* Position title */
+            transform: translate(-50%, -50%); /* Adjust for both horizontal and vertical centering */
+            font-size: 2rem; /* Font size for title */
+        }
+
+        .item h4 {
+            top: 30%; /* Position subtitle below the title */
+            transform: translate(-50%, -50%); /* Adjust for both horizontal and vertical centering */
+            font-size: 1rem; /* Font size for subtitle */
+        }
+
+        .shop-now {
+            position: absolute; /* Position text over the image */
+            bottom: 10%;
+            left: 25%;
+            font-size: 2rem;
+            transform: translate(-50%, -50%); /* Adjust for both horizontal and vertical centering */
+            display: none; /* Initially hidden */
+            color: white; /* Text color for 'Shop Now' */
+            text-decoration: underline; /* Underline for anchor tag */
+            margin-top: 10px; /* Space above the anchor tag */
+            z-index: 99;
+        }
+        
+        
+        .underline a:hover{
+          text-decoration: underline;
+        }
+        
+        .down{
+          position: relative;
+          top:10px;
+        }
+        
+        
+        /*product*/
+        #product{
+          height: 100vh;
+          width:100%;
+          display: flex;
+          flex-wrap: wrap;
+          justify-content: center;
+          align-items: center;
+        }
+        
+        
+        /* cards*/
+        :root {
+            --card-width: calc(var(--card-height) / 1.5);
+            --card-height: 300px;
+        }
+        * {
+          box-sizing: border-box;
+        }
+
+        .card {
+          width: var(--card-width);
+          height: var(--card-height);
+          position: relative;
+          display: flex;
+          justify-content: center;
+          align-items: flex-end;
+          padding: 0 36px;
+          perspective: 2500px;
+          margin: 0 50px;
+        }
+
+
+        .cover-image {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+        }
+
+        .wrapper {
+          transition: all 0.5s;
+          position: absolute;
+          width: 100%;
+          z-index: -1;
+        }
+
+        .card:hover .wrapper {
+          transform: perspective(900px) translateY(-5%) rotateX(25deg) translateZ(0);
+          box-shadow: 2px 35px 32px -8px rgba(0, 0, 0, 0.75);
+          -webkit-box-shadow: 2px 35px 32px -8px rgba(0, 0, 0, 0.75);
+          -moz-box-shadow: 2px 35px 32px -8px rgba(0, 0, 0, 0.75);
+        }
+
+        .wrapper::before,
+        .wrapper::after {
+          content: "";
+          opacity: 0;
+          width: 100%;
+          height: 80px;
+          transition: all 0.5s;
+          position: absolute;
+          left: 0;
+        }
+        .wrapper::before {
+          top: 0;
+          height: 100%;
+          background-image: linear-gradient(
+            to top,
+            transparent 46%,
+            rgba(12, 13, 19, 0.5) 68%,
+            rgba(12, 13, 19) 97%
+          );
+        }
+        .wrapper::after {
+          bottom: 0;
+          opacity: 1;
+          background-image: linear-gradient(
+            to bottom,
+            transparent 46%,
+            rgba(12, 13, 19, 0.5) 68%,
+            rgba(12, 13, 19) 97%
+          );
+        }
+
+        .card:hover .wrapper::before,
+        .wrapper::after {
+          opacity: 1;
+        }
+
+        .card:hover .wrapper::after {
+          height: 120px;
+        }
+        .title {
+          width: 100%;
+          transition: transform 0.5s;
+        }
+        .card:hover .title {
+          transform: translate3d(0%, -50px, 100px);
+        }
+
+        .character {
+          height:  300px;
+          width: 320px;;
+          opacity: 0;
+          transition: all 0.5s;
+          position: absolute;
+          z-index: -1;
+        }
+
+        .card:hover .character {
+          opacity: 1;
+          transform: translate3d(0%, -10%, 100px);
+        }
+        .clothes, .accessorie, .belts ,.shoes, .watches{
+          display: none;
+        }
+
+        .product, .clothe{
+          display: flex;
+        }
+
+        /* Media Queries for Responsive Design */
+
+        /* Large screens (laptops/desktops) */
+        @media (min-width: 1200px) {
+            .navbar {
+                padding: 1rem 10rem;
+            }
+        }
+
+        /* Medium screens (tablets) */
+        @media (min-width: 768px) and (max-width: 1199px) {
+            .navbar {
+                padding: 1rem 5rem;
+            }
+            .nav-logo{
+                display: flex;
+                gap: 2rem;
+            }
+
+            .collapse {
+                gap: 1.5rem;
+            }
+
+            img.custom-logo {
+                height: 60px;
+                width: 60px;
+            }
+
+            /* home */
+
+            .slide{
+                font-size: 40px;
+            }
+        }
+
+        /* Small screens (phones) */
+        @media (max-width: 767px) {
+            .navbar {
+                padding: 1rem 2rem;
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .nav-logo{
+                display: flex;
+                flex-direction: column;
+                gap: 0;
+            }
+
+            .collapse {
+                display: none;
+                flex-direction: column;
+                gap: 1rem;
+                width: 100%;
+                margin-top: 1rem;
+            }
+
+            .collapse.active {
+                display: flex;
+            }
+
+            .hamburger-menu {
+                display: block;
+                font-size: 30px;
+            }
+
+            .icon, .user-profile {
+                display: none; /* Hide on small screens */
+            }
+
+            /* home */
+            .left h2{
+                font-size: 20px;
+            }
+             
+            .slide{
+                font-size: 30px;
+            }
+        }
+
+        @media (max-width: 512px) {
+            /* home */
+            .left h2{
+                font-size: 10px;
+            }
+             
+            .slide{
+                font-size: 17px;
+            }
+        }
+        
+        
+        
+        
+        /*Footer*/
+        
+        footer {  
+          background-color: #000;  
+          color: #fff;  
+          padding: 20px;  
+          font-family: Arial, sans-serif;  
+        }  
+
+        .footer-content {  
+          display: flex;  
+          flex-wrap: wrap;  
+          justify-content: space-between;  
+          max-width: 1200px;  
+          margin: 0 auto;  
+        }  
+
+        .footer-column {  
+          flex: 1;  
+          min-width: 200px;  
+          margin-bottom: 20px;  
+        }  
+
+        h3 {  
+          font-size: 1.2em;  
+          margin-bottom: 15px;  
+          font-weight: bold;  
+        }  
+
+        ul {  
+          list-style-type: none;  
+          padding: 0;  
+          margin: 0;  
+        }  
+
+        li {  
+          margin-bottom: 10px;  
+        }  
+
+        a {  
+          text-decoration: none;  
+          color: #fff;  
+        }  
+
+        .social-icons {  
+          margin-top: 20px;  
+        }  
+
+        .facebook-icon {  
+          background-image: url('facebook-icon.png');  
+          background-size: 20px 20px;  
+          width: 20px;  
+          height: 20px;  
+          display: inline-block;  
+          margin-right: 10px;  
+        }  
+
+        .instagram-icon {  
+          background-image: url('instagram-icon.png');  
+          background-size: 20px 20px;  
+          width: 20px;  
+          height: 20px;  
+          display: inline-block;  
+          margin-right: 10px;  
+        }  
+
+        .pinterest-icon {  
+          background-image: url('pinterest-icon.png');  
+          background-size: 20px 20px;  
+          width: 20px;  
+          height: 20px;  
+          display: inline-block;  
+        }  
+
+        button {  
+          background-color: #007bff;  
+          color: #fff;  
+          border: none;  
+          padding: 10px 20px;  
+          cursor: pointer;  
+          font-size: 1em;  
+          font-weight: bold;  
+        }  
+
+        input[type="email"] {  
+          padding: 10px;  
+          border: none;  
+          border-radius: 5px;  
+          width: 100%;  
+          margin-bottom: 10px;  
+        }  
+
+        input[type="email"]:focus {  
+          outline: none;  
+          border: 1px solid #007bff;  
+        }  
+
+        button:hover {  
+          background-color: #0069d9;  
+        }  
+
+        /* Responsive design */  
+
+        @media (max-width: 1200px) {  
+          .footer-content {  
+          max-width: 100%;  
+          }  
+        }  
+
+        @media (max-width: 768px) {  
+          .footer-column {  
+          flex-basis: 50%;  
+          }  
+        }  
+
+        @media (max-width: 480px) {  
+          .footer-column {  
+          flex-basis: 100%;  
+          }  
+          .social-icons {  
+          margin-top: 10px;  
+          }  
+        }  
+
+        @media (max-width: 320px) {  
+          .footer-content {  
+          padding: 10px;  
+          }  
+          .footer-column {  
+          margin-bottom: 10px;  
+          }  
+          h3 {  
+          font-size: 1em;  
+          }  
+          li {  
+          margin-bottom: 5px;  
+          }  
+          .social-icons {  
+          margin-top: 5px;  
+          }  
+        }
+
+    </style>
+</head>
+<body>
+    <div class="navbar-wrapper">
+        <nav class="navbar">
+            <div class="nav-logo">
+                <a class="navbar-brand" href="#">
+                    <img src="" alt="Logo" class="custom-logo">
+                </a>
+                <div class="collapse" id="collapse-1">
+                        <a href="#Home">Home</a>
+                        <a href="#Shop">Shop</a>
+                        <a href="#Features">Features</a>
+                        <a href="#">Blog</a>
+                        <a href="#">About</a>
+                        <a href="#">Contact</a>
+                </div>
+            </div>
+            <div class="icon">
+                <i class="bx bx-search"></i> <!-- Example icon -->
+                <i class='bx bxs-cart-alt'></i>
+                <i class='bx bx-heart'></i>
+                <div class="user-profile" id="userIcon">
+                    <i class="bx bx-user"></i> <!-- User icon -->
+                    <span id="username">Username</span>
+                </div>
+            </div>
+            <!-- Hamburger menu for smaller screens -->
+            <div class="hamburger-menu" id="hamburger-menu-1">
+                <i class="bx bx-menu"></i>
+            </div>
+        </nav>
+    </div>
+
+    <section id="Home">
+        <div class="left">
+            <h2>Men New-Season</h2>
+            <h1 class="slide">JACKETS & COATS</h1>
+        </div>
+    </section>
+    
+    <section id="persons">
+        <div class="item women">
+            <img src="png/banner-01.jpg" alt="Women's banner">
+            <h1>Women</h1>
+            <h4>Spring 2018</h4>
+            <a href="#" class="shop-now">Shop Now</a>
+        </div>
+        <div class="item men">
+            <img src="png/banner-02.jpg" alt="Men's banner">
+            <h1>Men</h1>
+            <h4>Spring 2018</h4>
+            <a href="#" class="shop-now">Shop Now</a>
+        </div>
+        <div class="item accessories-m">
+            <img src="png/banner-03.jpg" alt="Accessories banner">
+            <h1>Accessories</h1>
+            <h4>Spring 2018</h4>
+            <a href="#" class="shop-now">Shop Now</a>
+        </div>
+    </section>
+    
+    <section id="product">
+        <div  class="navbar">
+            <div class="custom-logo">
+              <h2>PRODUCT OVERVIEW</h2>
+              <div class="collapse underline" id="collapse-2">
+                <a class="All-products" href="#All products">All products</a>
+                <a class="Clothes" href="#Clothes">Clothes</a>
+                <a class="Accessories" href="#accessories">accessories</a>
+                <a class="Belts" href="#Belts">Belts</a>
+                <a class="Shoes" href="#Shoes">Shoes</a>
+                <a class="Watches" href="#watches">watches</a>
+              </div>
+            </div>
+            <div class="icon down">
+              <i class='bx bx-filter'>filter</i>
+              <i class="bx bx-search"></i>
+            </div>
+            <!-- Hamburger menu for smaller screens -->
+            <div class="hamburger-menu" id="hamburger-menu-2">
+                <i class="bx bx-menu"></i>
+            </div>
+        </div>
+        <div class="product">
+          
+          <div class="clothe">
+              <div class="card">
+                <div class="wrapper">
+                  <img src="png/product-01.jpg" class="cover-image" />
+                </div>
+                <h4 class="title"></h4>
+                <img src="/png/tinywow_change_bg_photo_63599297.png" class="character" />
+              </div>
+              <div class="card">
+                <div class="wrapper">
+                  <img src="png/product-03.jpg" class="cover-image" />
+                </div>
+                <h4 class="title"></h4>
+                <img src="/png/IMG_20240901_103124.png" class="character" />
+              </div>
+          </div>
+          
+          <div class="accessorie">
+            
+          </div>
+          
+          <div class="belt">
+            
+          </div>
+          
+          <div class="shoe">
+            <div class="card">
+              <div class="wrapper">
+                <img src="png/product-09.jpg" class="cover-image" />
+              </div>
+              <h4 class="title"></h4>
+              <img src="/png/IMG_20240901_104519.png" class="character" />
+            </div>
+          </div>
+          
+          <div class="watche">
+            
+          </div>
+          
+        </div>
+    </section>
+    
+    <footer>  
+   <div class="footer-content">  
+    <div class="footer-column">  
+      <h3>CATEGORIES</h3>  
+      <ul>  
+       <li>Women</li>  
+       <li>Men</li>  
+       <li>Shoes</li>  
+       <li>Watches</li>  
+      </ul>  
+    </div>  
+    <div class="footer-column">  
+      <h3>HELP</h3>  
+      <ul>  
+       <li>Track Order</li>  
+       <li>Returns</li>  
+       <li>Shipping</li>  
+       <li>FAQs</li>  
+      </ul>  
+    </div>  
+    <div class="footer-column">  
+      <h3>GET IN TOUCH</h3>  
+      <p>Any questions? Let us know in store at 8th floor, 379 Hudson St, New York, NY 10018 or call us on (+1) 96 716 6879</p>  
+      <div class="social-icons">  
+       <a href="#" class="facebook-icon"></a>  
+       <a href="#" class="instagram-icon"></a>  
+       <a href="#" class="pinterest-icon"></a>  
+      </div>  
+    </div>  
+    <div class="footer-column">  
+      <h3>NEWSLETTER</h3>  
+      <form>  
+       <input type="email" placeholder="email@example.com">  
+       <button type="submit">SUBSCRIBE</button>  
+      </form>  
+    </div>  
+   </div>  
+  </footer>
+
+    <script>
+       $(document).ready(function() {
+    // Check if user is logged in
+    var username = localStorage.getItem('username');
+    if (username) {
+        $('#username').text(username);
+    } else {
+        $('#username').text('guest');
+    }
+
+    $('#userIcon').on('click', function() {
+        window.location.href = 'login.html'; // Redirect to login page
+    });
+
+    $('#hamburger-menu-1').click(function () {
+                $('#collapse-1').toggleClass('active');
+    });
+
+    $('#hamburger-menu-2').click(function () {
+                $('#collapse-2').toggle();
+    });
+
+
+    // jQuery for sticky navbar effect
+    $(window).scroll(function() {
+        if ($(this).scrollTop() > 0) {
+            $('.navbar').addClass('sticky');
+        } else {
+            $('.navbar').removeClass('sticky');
+        }
+    });
+
+    // Handle card click
+    $('.item').on('click', function() {
+        // Remove 'clicked' class from all items
+        $('.item').removeClass('clicked');
+        $('.item .shop-now').hide(); // Hide 'Shop Now' for all items
+
+        // Add 'clicked' class only to the clicked item
+        $(this).addClass('clicked');
+        $(this).find('.shop-now').show(); // Show 'Shop Now' for clicked item
+    });
+
+    // Hover effect for images
+    $('.item').hover(
+        function () {
+            // On mouse enter, zoom the image
+            $(this).find('img').css({
+                'transform': 'scale(1.2)'
+            });
+        },
+        function () {
+            // On mouse leave, if not clicked, reset the zoom
+            if (!$(this).hasClass('clicked')) {
+                $(this).find('img').css({
+                    'transform': 'scale(1)'
+                });
+            }
+        }
+    );
+   
+   function showCategory(category) {
+     if (category === 'All-products') {
+       $('.clothe > div').show(); // Show all categories
+       $('.shoe > div').show();
+       $('.accessorie > div').show();
+       $('.belt > div').show();
+       $('.watche > div').show();
+     } else if(category === 'Clothes') {
+       $('.clothe > div').show(); // Show all categories
+       $('.accessorie > div').hide();
+       $('.belt > div').hide();
+       $('.shoe > div').hide();
+       $('.watche > div').hide();// Hide all categories
+     }else if (category === 'Accessories') {
+       $('.clothe > div').hide();
+       $('.accessorie > div').show();
+       $('.belt > div').hide();
+       $('.shoe > div').hide();
+       $('.watche > div').hide(); // Hide all categories
+     }else if (category === 'Belts') {
+       $('.clothe > div').hide();
+       $('.accessorie > div').hide();
+       $('.belt > div').show();0
+       $('.shoe > div').hide();
+       $('.watche > div').hide();// Hide all categories
+     }else if (category === 'Shoes') {
+       $('.clothe > div').hide();
+       $('.accessorie > div').hide();
+       $('.belt > div').hide();
+       $('.shoe > div').show();
+       $('.watche > div').hide(); // Hide all categories
+     }else if (category === 'Watches') {
+       $('.clothe > div').hide(); // Hide all categories
+       $('.accessorie > div').hide();
+       $('.belt > div').hide();
+       $('.shoe > div').hide();
+       $('.watche > div').show();
+     }else{
+       $('.' + category).show(); // Show the selected category
+     }
+     
+     
+   }
+   
+    // Click event for each link
+            $('.navbar a').click(function(event) {
+                event.preventDefault();  // Prevent default link behavior
+                // Determine the category based on the clicked link
+                const category = $(this).attr('class').split(' ')[0];
+
+                // Show the correct category
+                showCategory(category);
+            });
+
+            // Initially show all products
+            showCategory('All-products');
+            
+            
+            $('form').on('submit', function(e) {  
+   e.preventDefault();  
+   // Handle newsletter subscription  
+  });  
+  
+  
+});
+</script>
+</body>
+</html>
+            
